@@ -1,0 +1,33 @@
+name: Docker Compose Monitoring Stack
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v3
+
+    - name: Run Docker Compose Up
+      run: |
+        docker compose version
+        docker compose up -d
+        sleep 10
+        docker compose ps
+
+    - name: Check Services
+      run: |
+        curl -f http://localhost:9090 || echo "Prometheus not reachable"
+        curl -f http://localhost:3000 || echo "Grafana not reachable"
+
